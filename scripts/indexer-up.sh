@@ -69,6 +69,19 @@ cluster_ready() {
 }
 wait_for "cluster health" 120 cluster_ready
 
+# A green cluster is not enough: Content Manager refuses every write ("Draft
+# policy not found") until its boot-time setup creates the draft policy, and
+# that setup gives up for good if the security index didn't exist at boot,
+# which on first start it never does. One restart, now that security is
+# initialised, lets it finish (observed on rc2: 4 policy docs ~20 s later).
+docker restart "$name" >/dev/null
+wait_for "cluster health after restart" 180 cluster_ready
+content_manager_ready() {
+  curl -sf --cacert "$state/root-ca.pem" -u "admin:${password}" \
+    "$url/wazuh-threatintel-policies/_count" | grep -Eq '"count":[1-9]'
+}
+wait_for "Content Manager draft policy" 300 content_manager_ready
+
 umask 077
 cat > "$state/env" <<EOF
 WAZUH_INDEXER_URL=$url
