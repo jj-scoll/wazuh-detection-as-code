@@ -1,0 +1,22 @@
+match:
+  - description: Agent edits Claude Code settings
+    event:
+      event: {provider: guardrails, action: ask}
+      rule: {name: 'settings:Edit', ruleset: guardrails}
+  - description: Sed against the PII rules file blocked
+    event:
+      event: {provider: guardrails, action: block}
+      rule: {name: 'pii-rules:sed', ruleset: guardrails}
+  - description: Observe mode let a PII rules write through
+    event:
+      event: {provider: guardrails, action: would-block}
+      rule: {name: 'pii-rules:Write', ruleset: guardrails}
+no_match:
+  - description: Retry-breaker nudge
+    event:
+      event: {provider: guardrails, action: nudge}
+      rule: {name: retry-breaker, ruleset: guardrails}
+  - description: Case matters in Wazuh 5.0
+    event:
+      event: {provider: guardrails, action: ask}
+      rule: {name: 'Settings:Edit', ruleset: guardrails}

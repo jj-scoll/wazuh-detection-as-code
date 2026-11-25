@@ -31,6 +31,32 @@ production.
 | [PowerShell launched with an encoded command](rules/windows/powershell_encoded_command.yml) | T1059.001, T1027.010 | medium |
 | [Windows event log cleared](rules/windows/security_log_cleared.yml) | T1070.001 | high |
 
+### AI coding agents
+
+These rules watch AI coding agents (Claude Code) through
+[broodhall guardrails](https://github.com/jj-scoll/broodhall), the hooks that
+block, mask or question risky tool calls. With the guardrails `ecs_export`
+option on, every decision is also written as an ECS event to
+`~/.local/state/guardrails/events.ecs.jsonl`, which a Wazuh agent ships with
+`<log_format>json</log_format>`. An event carries the decision
+(`event.action`: block, ask, mask, would-block…) and the guard's rule id
+(`rule.name`), but never the command text, paths or values. Those may hold the
+very secret that was masked, so the SIEM sees what the agent tried, not the
+data itself.
+
+Each rule is tagged with ATT&CK, [MITRE ATLAS](https://atlas.mitre.org/),
+the OWASP Top 10 for LLM Applications, and the threat ID from broodhall's
+[threat model](https://github.com/jj-scoll/broodhall/blob/main/THREAT_MODEL.md).
+
+| Rule | ATT&CK | ATLAS | broodhall | Level |
+|---|---|---|---|---|
+| [Agent reached for a credential file](rules/ai-agent/credential_file_access.yml) | T1552.001 | AML.T0055, AML.T0083 | T06 | medium |
+| [Agent tried to send a secret or personal data out](rules/ai-agent/exfiltration_attempt.yml) | T1567 | AML.T0086 | T07, T16 | high |
+| [Agent tried to change its own guard or PII rules](rules/ai-agent/guard_tampering.yml) | T1562.001 | AML.T0081 | T05, T08 | high |
+| [Agent attempted a destructive command](rules/ai-agent/destructive_command_blocked.yml) | T1485 | AML.T0101 | T01, T02 | high |
+| [Agent tried to start a privileged container](rules/ai-agent/container_escape_attempt.yml) | T1611 | AML.T0105 | T12 | high |
+| [Agent tried to run a downloaded script unread](rules/ai-agent/remote_script_execution.yml) | T1105, T1059.004 | AML.T0050 | T04 | medium |
+
 Rules match on already-normalized events in the
 [Wazuh Common Schema](https://github.com/wazuh/wazuh-indexer-plugins) (WCS),
 which is ECS-based. For example, CloudTrail rules read `event.provider` and
@@ -117,7 +143,8 @@ unsupported: `process.command_line|re`: regex `[|][ ]*sh\s`: backslash is a lite
    `set -a; . .wazuh/env; set +a; cargo test --test wazuh_parity -- --ignored`
    to confirm against the engine. The indexer needs Docker and about 2.5 GB of
    RAM (2.44 GiB measured with `docker stats` after a parity run, 1 GB heap),
-   and is ready in under a minute (35-51 s measured).
+   and is ready in about 80 s (78 s measured, including one restart the
+   script does so Content Manager can finish its setup).
 
 ## Layout
 

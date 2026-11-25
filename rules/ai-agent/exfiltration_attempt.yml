@@ -1,0 +1,37 @@
+title: AI coding agent tried to send a secret or personal data off the machine
+id: b214f155-3a62-4c66-b17d-583adb72ec3b
+status: experimental
+description: >
+  broodhall guardrails found a secret, an outside email address, a phone
+  number, or an unscannable payload in a network-bound command, MCP call or
+  web fetch from an AI coding agent. `would-ask` means the guard was in
+  observe mode and the call went through.
+references:
+  - https://github.com/jj-scoll/broodhall/blob/main/THREAT_MODEL.md
+  - https://atlas.mitre.org/techniques/AML.T0086
+author: Jeff Scollick
+date: 2026-11-25
+tags:
+  - attack.exfiltration
+  - attack.t1567
+  - atlas.aml.t0086
+  - owasp.llm02
+  - broodhall.t07
+  - broodhall.t16
+logsource:
+  product: claude-code
+  service: guardrails
+detection:
+  selection_source:
+    event.provider: guardrails
+    rule.ruleset: guardrails
+  selection_rule:
+    rule.name|startswith:
+      - 'egress:'
+      - 'secret-arg:'
+  selection_decision:
+    event.action: [ask, would-ask, block]
+  condition: all of selection_*
+falsepositives:
+  - Deliberately posting a token to its own provider's API (e.g. a gh auth flow)
+level: high

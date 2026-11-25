@@ -1,0 +1,10 @@
+match:
+  - description: curl piped to sh questioned
+    event:
+      event: {provider: guardrails, action: ask}
+      rule: {name: download-exec, ruleset: guardrails}
+no_match:
+  - description: Plan-before-apply nudge
+    event:
+      event: {provider: guardrails, action: nudge}
+      rule: {name: plan-before-apply, ruleset: guardrails}

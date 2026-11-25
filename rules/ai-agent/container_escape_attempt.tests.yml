@@ -1,0 +1,10 @@
+match:
+  - description: Privileged container blocked
+    event:
+      event: {provider: guardrails, action: block}
+      rule: {name: privileged-container, ruleset: guardrails}
+no_match:
+  - description: Similar name with a suffix
+    event:
+      event: {provider: guardrails, action: block}
+      rule: {name: privileged-container-x, ruleset: guardrails}

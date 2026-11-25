@@ -1,0 +1,18 @@
+match:
+  - description: rm -rf blocked
+    event:
+      event: {provider: guardrails, action: block}
+      rule: {name: 'dangerous:rm', ruleset: guardrails}
+  - description: Fork bomb blocked
+    event:
+      event: {provider: guardrails, action: block}
+      rule: {name: 'dangerous::(){', ruleset: guardrails}
+no_match:
+  - description: Routine git stash question is not destructive enough
+    event:
+      event: {provider: guardrails, action: ask}
+      rule: {name: git-stash, ruleset: guardrails}
+  - description: Only blocks count
+    event:
+      event: {provider: guardrails, action: nudge}
+      rule: {name: 'dangerous:rm', ruleset: guardrails}

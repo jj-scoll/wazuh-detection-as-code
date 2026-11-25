@@ -1,0 +1,33 @@
+title: AI coding agent attempted a destructive command
+id: 35ef3c74-b2ce-44d1-a66d-9c387110d91d
+status: experimental
+description: >
+  broodhall guardrails blocked an AI coding agent from running a destructive
+  command: rm -rf on a home or root path, dd onto a device, a fork bomb,
+  recursive chmod/chown of system paths, a write into /etc, or a force push.
+  Agents rarely need any of these, so one block is worth a look.
+references:
+  - https://github.com/jj-scoll/broodhall/blob/main/THREAT_MODEL.md
+  - https://atlas.mitre.org/techniques/AML.T0101
+author: Jeff Scollick
+date: 2026-11-25
+tags:
+  - attack.impact
+  - attack.t1485
+  - atlas.aml.t0101
+  - owasp.llm06
+  - broodhall.t01
+  - broodhall.t02
+logsource:
+  product: claude-code
+  service: guardrails
+detection:
+  selection:
+    event.provider: guardrails
+    rule.ruleset: guardrails
+    rule.name|startswith: 'dangerous:'
+    event.action: block
+  condition: selection
+falsepositives:
+  - An agent cleaning up a scratch directory with an over-broad path
+level: high

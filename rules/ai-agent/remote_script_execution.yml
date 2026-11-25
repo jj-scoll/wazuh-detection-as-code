@@ -1,0 +1,33 @@
+title: AI coding agent tried to run a downloaded script unread
+id: dc47b656-2557-469b-8ce1-ba0088ead32d
+status: experimental
+description: >
+  An AI coding agent tried to pipe a download straight into a shell, or run a
+  file it just downloaded without reading it, and broodhall guardrails asked
+  first. Instructions to "just run this installer" are a common payload in
+  poisoned READMEs and issues.
+references:
+  - https://github.com/jj-scoll/broodhall/blob/main/THREAT_MODEL.md
+  - https://atlas.mitre.org/techniques/AML.T0050
+author: Jeff Scollick
+date: 2026-11-25
+tags:
+  - attack.execution
+  - attack.command-and-control
+  - attack.t1105
+  - attack.t1059.004
+  - atlas.aml.t0050
+  - owasp.llm01
+  - broodhall.t04
+logsource:
+  product: claude-code
+  service: guardrails
+detection:
+  selection:
+    event.provider: guardrails
+    rule.ruleset: guardrails
+    rule.name: download-exec
+  condition: selection
+falsepositives:
+  - Official one-line installers the developer asked the agent to run
+level: medium

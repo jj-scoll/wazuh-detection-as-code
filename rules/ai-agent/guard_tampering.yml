@@ -1,0 +1,38 @@
+title: AI coding agent tried to change its own guard or PII rules
+id: feced43f-f959-4a60-8fce-d2fd3f6e390a
+status: experimental
+description: >
+  An AI coding agent tried to edit Claude Code settings, the guardrails
+  configuration, or the PII rules file that decides what gets masked. An agent
+  that loosens its own controls is a classic sign of prompt injection;
+  `would-block` means observe mode let the change through.
+references:
+  - https://github.com/jj-scoll/broodhall/blob/main/THREAT_MODEL.md
+  - https://atlas.mitre.org/techniques/AML.T0081
+author: Jeff Scollick
+date: 2026-11-25
+tags:
+  - attack.defense-evasion
+  - attack.persistence
+  - attack.t1562.001
+  - atlas.aml.t0081
+  - owasp.llm06
+  - broodhall.t05
+  - broodhall.t08
+logsource:
+  product: claude-code
+  service: guardrails
+detection:
+  selection_source:
+    event.provider: guardrails
+    rule.ruleset: guardrails
+  selection_rule:
+    rule.name|startswith:
+      - 'settings:'
+      - 'pii-rules:'
+  selection_decision:
+    event.action: [ask, block, would-block]
+  condition: all of selection_*
+falsepositives:
+  - The user explicitly asking the agent to change its settings
+level: high

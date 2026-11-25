@@ -1,0 +1,30 @@
+title: AI coding agent tried to start a privileged or host-mounted container
+id: 05820312-54b1-4555-8ada-826bc6730fae
+status: experimental
+description: >
+  broodhall guardrails blocked an AI coding agent from running a container
+  with --privileged, the host PID namespace, or the host root mounted: a
+  direct route out of any sandbox onto the host.
+references:
+  - https://github.com/jj-scoll/broodhall/blob/main/THREAT_MODEL.md
+  - https://atlas.mitre.org/techniques/AML.T0105
+author: Jeff Scollick
+date: 2026-11-25
+tags:
+  - attack.privilege-escalation
+  - attack.t1611
+  - atlas.aml.t0105
+  - owasp.llm06
+  - broodhall.t12
+logsource:
+  product: claude-code
+  service: guardrails
+detection:
+  selection:
+    event.provider: guardrails
+    rule.ruleset: guardrails
+    rule.name: privileged-container
+  condition: selection
+falsepositives:
+  - Container tooling development that genuinely needs privileged mode
+level: high
