@@ -1,0 +1,26 @@
+match:
+  - description: useradd from an interactive sudo session
+    event:
+      event: {category: [process], type: [start]}
+      process:
+        name: useradd
+        command_line: "useradd -m -s /bin/bash -G sudo sysadm1n"
+        parent: {name: sudo}
+      user: {name: root}
+  - description: adduser launched by a web shell
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: adduser, parent: {name: sh}}
+no_match:
+  - description: Package post-install creates a service account
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: useradd, command_line: "useradd --system postgres", parent: {name: dpkg}}
+  - description: Upper-case binary name is a different program on Linux
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: USERADD, parent: {name: bash}}
+  - description: usermod is not account creation
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: usermod, parent: {name: sudo}}

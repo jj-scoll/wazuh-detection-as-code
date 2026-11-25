@@ -1,0 +1,17 @@
+match:
+  - description: Security log cleared
+    event:
+      event: {code: "1102", provider: Microsoft-Windows-Eventlog, action: log-cleared}
+      host: {name: DC01, os: {type: windows}}
+      user: {name: Administrator, domain: CORP}
+  - description: System log cleared
+    event:
+      event: {code: "104", provider: Microsoft-Windows-Eventlog}
+      host: {name: WS-114}
+no_match:
+  - description: Same event code from another provider
+    event:
+      event: {code: "1102", provider: Microsoft-Windows-Security-Auditing}
+  - description: Log service started (6005)
+    event:
+      event: {code: "6005", provider: EventLog}

@@ -1,0 +1,29 @@
+match:
+  - description: Short -enc flag
+    event:
+      event: {category: [process], type: [start]}
+      process:
+        name: powershell.exe
+        command_line: "powershell.exe -NoP -W Hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkA"
+        parent: {name: winword.exe}
+  - description: Full flag in mixed case with pwsh
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: pwsh.exe, command_line: "pwsh.exe -EncodedCommand ZQBjAGgAbwAgAGgAaQAgAHQAaABlAHIAZQA="}
+  - description: Upper-case image name and /E switch
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: POWERSHELL.EXE, command_line: "POWERSHELL.EXE /E ZQBjAGgAbwAgAGgAaQAgAHQAaABlAHIAZQA="}
+no_match:
+  - description: -ExecutionPolicy is not -EncodedCommand
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: powershell.exe, command_line: "powershell.exe -ExecutionPolicy Bypass -File C:\\scripts\\backup.ps1"}
+  - description: Encoded flag with a short argument
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: powershell.exe, command_line: "powershell.exe -e abc"}
+  - description: Same command line in a different binary
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: cmd.exe, command_line: "cmd.exe /c echo -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoA"}

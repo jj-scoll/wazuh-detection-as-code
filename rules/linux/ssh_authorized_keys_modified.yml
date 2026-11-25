@@ -1,0 +1,36 @@
+title: SSH authorized_keys file modified
+id: fc410b3d-4245-450f-9ae4-872f4b0bbed0
+status: experimental
+description: >
+  A process created or changed an SSH authorized_keys file. Adding a key is a
+  quiet way to keep access to an account after the initial compromise.
+references:
+  - https://attack.mitre.org/techniques/T1098/004/
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.persistence
+  - attack.t1098.004
+logsource:
+  product: linux
+  category: file_event
+detection:
+  selection:
+    event.category: file
+    event.type:
+      - creation
+      - change
+    file.path|endswith:
+      - /.ssh/authorized_keys
+      - /.ssh/authorized_keys2
+  filter_config_management:
+    process.name:
+      - puppet
+      - chef-client
+      - salt-minion
+      - cloud-init
+  condition: selection and not filter_config_management
+falsepositives:
+  - Administrators adding their own keys by hand
+  - Configuration management tools not listed in the filter
+level: medium

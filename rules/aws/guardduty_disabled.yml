@@ -1,0 +1,30 @@
+title: AWS GuardDuty detector deleted or member monitoring stopped
+id: 3c5e2a8b-91f4-4d77-b0e6-5f2d8a7c4e13
+status: experimental
+description: >
+  A GuardDuty detector was deleted, or an account stopped being monitored by
+  its GuardDuty administrator. Either blinds threat detection for the account.
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://docs.aws.amazon.com/guardduty/latest/APIReference/API_DeleteDetector.html
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.defense-evasion
+  - attack.t1562.001
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection:
+    cloud.provider: aws
+    event.provider: guardduty.amazonaws.com
+    event.action:
+      - DeleteDetector
+      - DisassociateFromAdministratorAccount
+      - DisassociateMembers
+      - StopMonitoringMembers
+  condition: selection
+falsepositives:
+  - Account decommissioning
+level: high

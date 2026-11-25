@@ -1,0 +1,38 @@
+title: Cron job file written outside package management
+id: 0da43fa0-9e18-4713-954e-401cb9297d8c
+status: experimental
+description: >
+  A system or user crontab was created or changed by something other than the
+  package manager. Cron is a common way to schedule a persistent payload.
+references:
+  - https://attack.mitre.org/techniques/T1053/003/
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.persistence
+  - attack.execution
+  - attack.t1053.003
+logsource:
+  product: linux
+  category: file_event
+detection:
+  selection:
+    event.category: file
+    event.type:
+      - creation
+      - change
+    file.path|startswith:
+      - /etc/cron
+      - /var/spool/cron/
+  filter_package_manager:
+    process.name:
+      - dpkg
+      - rpm
+      - apt
+      - apt-get
+      - dnf
+      - yum
+  condition: selection and not filter_package_manager
+falsepositives:
+  - Administrators editing crontabs by hand (crontab -e)
+level: medium

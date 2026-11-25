@@ -1,0 +1,28 @@
+match:
+  - description: Attacker appends a key to root's authorized_keys
+    event:
+      event: {category: [file], type: [change], action: modified}
+      file: {path: /root/.ssh/authorized_keys}
+      process: {name: bash, command_line: "bash -c echo ssh-ed25519 AAAA... >> /root/.ssh/authorized_keys"}
+      host: {name: web-01, os: {type: linux}}
+  - description: New authorized_keys2 created in a user home
+    event:
+      event: {category: [file], type: [creation]}
+      file: {path: /home/deploy/.ssh/authorized_keys2}
+      process: {name: python3}
+no_match:
+  - description: cloud-init provisions the key at first boot
+    event:
+      event: {category: [file], type: [creation]}
+      file: {path: /home/ubuntu/.ssh/authorized_keys}
+      process: {name: cloud-init}
+  - description: File only read, not written
+    event:
+      event: {category: [file], type: [access]}
+      file: {path: /root/.ssh/authorized_keys}
+      process: {name: sshd}
+  - description: Backup copy with a different name
+    event:
+      event: {category: [file], type: [creation]}
+      file: {path: /root/.ssh/authorized_keys.bak}
+      process: {name: cp}

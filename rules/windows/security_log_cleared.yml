@@ -1,0 +1,28 @@
+title: Windows event log cleared
+id: 7ca1ab05-3c7b-4a40-a6d4-674e26e68467
+status: stable
+description: >
+  The Security log (event 1102) or another event log (event 104) was cleared.
+  Legitimate clearing is rare; attackers clear logs to remove evidence.
+references:
+  - https://attack.mitre.org/techniques/T1070/001/
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-1102
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.defense-evasion
+  - attack.t1070.001
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_security:
+    event.code: '1102'
+    event.provider: Microsoft-Windows-Eventlog
+  selection_other:
+    event.code: '104'
+    event.provider: Microsoft-Windows-Eventlog
+  condition: 1 of selection_*
+falsepositives:
+  - Documented log rotation on systems that clear logs after archiving
+level: high

@@ -1,0 +1,24 @@
+match:
+  - description: History cleared and file unset in one command
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c unset HISTFILE; history -c"}
+  - description: History file deleted
+    event:
+      event: {category: [file], type: [deletion]}
+      file: {name: .bash_history, path: /root/.bash_history}
+      process: {name: rm}
+no_match:
+  - description: Reading history is fine
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c history | grep ssh"}
+  - description: History file changed, not deleted
+    event:
+      event: {category: [file], type: [change]}
+      file: {name: .bash_history, path: /root/.bash_history}
+      process: {name: bash}
+  - description: Larger HISTSIZE is not tampering
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c export HISTSIZE=10000"}

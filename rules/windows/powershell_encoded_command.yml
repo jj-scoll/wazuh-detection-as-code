@@ -1,0 +1,39 @@
+title: PowerShell launched with an encoded command
+id: 9d4970da-14d3-42c3-9e95-e77888762b28
+status: experimental
+description: >
+  PowerShell started with -EncodedCommand (or any prefix PowerShell accepts,
+  such as -enc or -e) followed by a base64 blob. Encoding hides the script
+  from command-line logging and casual review.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://attack.mitre.org/techniques/T1027/010/
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.execution
+  - attack.defense-evasion
+  - attack.t1059.001
+  - attack.t1027.010
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  # Wazuh 5.0 compares strings case-sensitively and its |re has no `i` flag,
+  # so image names are listed per spelling and the flag is matched with
+  # per-letter classes: any prefix of -EncodedCommand, in any case, then a
+  # base64 blob. `/` can't appear in a Wazuh regex, so the switch character
+  # is "any non-alphanumeric" (covers -, / and the en dash PowerShell also
+  # accepts) and the blob class leaves out `/`.
+  selection_image:
+    process.name:
+      - powershell.exe
+      - PowerShell.exe
+      - POWERSHELL.EXE
+      - pwsh.exe
+  selection_encoded:
+    process.command_line|re: '[ ][^ a-zA-Z0-9][eE]([nN]([cC]([oO]([dD]([eE]([dD]([cC]([oO]([mM]([mM]([aA]([nN]([dD])?)?)?)?)?)?)?)?)?)?)?)?)?[ ]+[A-Za-z0-9+=]{16,}'
+  condition: selection_image and selection_encoded
+falsepositives:
+  - Management agents (SCCM, some RMM tools) that ship scripts encoded
+level: medium

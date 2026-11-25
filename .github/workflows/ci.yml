@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  unit:
+    name: lint + offline tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - name: build Wazuh rule resources
+        run: cargo run --quiet -- build --out dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wazuh-rules
+          path: dist/
+
+  parity:
+    name: parity against Wazuh 5.0 engine
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: OpenSearch needs vm.max_map_count >= 262144
+        run: sudo sysctl -w vm.max_map_count=262144
+      - name: start wazuh-indexer
+        run: scripts/indexer-up.sh
+      - name: build parity test
+        run: cargo test --no-run --test wazuh_parity
+      - name: every fixture event fires the same rules in Wazuh as locally
+        run: |
+          set -a; . .wazuh/env; set +a
+          cargo test --test wazuh_parity -- --ignored --nocapture
+      - name: indexer logs on failure
+        if: failure()
+        run: docker logs --tail 200 dac-wazuh-indexer

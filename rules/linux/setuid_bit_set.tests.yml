@@ -1,0 +1,26 @@
+match:
+  - description: Symbolic u+s on a copied shell
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: chmod, args: [chmod, u+s, /tmp/.sh], command_line: "chmod u+s /tmp/.sh"}
+  - description: Octal 4755
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: chmod, args: [chmod, "4755", /var/tmp/python3]}
+  - description: Combined symbolic mode
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: chmod, args: [chmod, ug+xs, /opt/tool]}
+no_match:
+  - description: Ordinary executable bit
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: chmod, args: [chmod, "0755", /usr/local/bin/tool]}
+  - description: Sticky bit on a directory is not setuid
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: chmod, args: [chmod, "1777", /srv/shared]}
+  - description: Same args to a different binary
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: echo, args: [echo, u+s]}

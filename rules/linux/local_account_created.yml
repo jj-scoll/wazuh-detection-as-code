@@ -1,0 +1,30 @@
+title: Local user account created interactively
+id: a38ef79a-4699-4993-a2b7-5cb47c40a7e6
+status: experimental
+description: >
+  useradd or adduser ran outside a package install. A new local account is a
+  simple backdoor that survives credential resets of existing users.
+references:
+  - https://attack.mitre.org/techniques/T1136/001/
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.persistence
+  - attack.t1136.001
+logsource:
+  product: linux
+  category: process_creation
+detection:
+  selection:
+    process.name:
+      - useradd
+      - adduser
+  filter_package_scripts:
+    process.parent.name:
+      - dpkg
+      - rpm
+      - systemd-sysusers
+  condition: selection and not filter_package_scripts
+falsepositives:
+  - Planned onboarding of new administrators
+level: medium

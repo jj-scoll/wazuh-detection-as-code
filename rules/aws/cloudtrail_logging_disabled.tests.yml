@@ -1,0 +1,25 @@
+match:
+  - description: StopLogging by an IAM user
+    event:
+      cloud: {provider: aws, region: ca-central-1, account: {id: "111122223333"}}
+      event: {provider: cloudtrail.amazonaws.com, action: StopLogging, outcome: success}
+      user: {name: ci-deployer}
+      source: {ip: 198.51.100.23}
+      user_agent: {original: "aws-cli/2.17.0"}
+  - description: DeleteTrail
+    event:
+      cloud: {provider: aws}
+      event: {provider: cloudtrail.amazonaws.com, action: DeleteTrail}
+no_match:
+  - description: Read-only trail lookup
+    event:
+      cloud: {provider: aws}
+      event: {provider: cloudtrail.amazonaws.com, action: DescribeTrails}
+  - description: StopLogging is case-sensitive; wrong case is not the API call
+    event:
+      cloud: {provider: aws}
+      event: {provider: cloudtrail.amazonaws.com, action: stoplogging}
+  - description: Same action name from another service
+    event:
+      cloud: {provider: aws}
+      event: {provider: config.amazonaws.com, action: DeleteTrail}

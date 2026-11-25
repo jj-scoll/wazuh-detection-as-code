@@ -1,0 +1,23 @@
+match:
+  - description: Payload dropped into /etc/cron.d
+    event:
+      event: {category: [file], type: [creation]}
+      file: {path: /etc/cron.d/.sysupdate}
+      process: {name: curl}
+  - description: User crontab replaced
+    event:
+      event: {category: [file], type: [change]}
+      file: {path: /var/spool/cron/crontabs/www-data}
+      process: {name: crontab}
+      user: {name: www-data}
+no_match:
+  - description: Package install ships a cron file
+    event:
+      event: {category: [file], type: [creation]}
+      file: {path: /etc/cron.daily/logrotate}
+      process: {name: dpkg}
+  - description: Similar path that is not cron
+    event:
+      event: {category: [file], type: [creation]}
+      file: {path: /etc/crypttab}
+      process: {name: vim}

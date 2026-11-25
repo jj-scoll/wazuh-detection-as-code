@@ -1,0 +1,28 @@
+title: setuid or setgid bit set with chmod
+id: 47a8682e-2985-4db5-80a1-1ed0dea00084
+status: experimental
+description: >
+  chmod sets the setuid or setgid bit (u+s, g+s, or a 4xxx/2xxx/6xxx octal
+  mode). A setuid copy of a shell or interpreter gives any user a root shell.
+references:
+  - https://attack.mitre.org/techniques/T1548/001/
+author: Jeff Scollick
+date: 2026-11-24
+tags:
+  - attack.privilege-escalation
+  - attack.defense-evasion
+  - attack.t1548.001
+logsource:
+  product: linux
+  category: process_creation
+detection:
+  selection_chmod:
+    process.name: chmod
+  selection_symbolic:
+    process.args|re: '^[ugoa]*[+][rwxt]*s'
+  selection_octal:
+    process.args|re: '^[2467][0-7]{3}$'
+  condition: selection_chmod and (selection_symbolic or selection_octal)
+falsepositives:
+  - Software builds that install setuid helpers outside the package manager
+level: high

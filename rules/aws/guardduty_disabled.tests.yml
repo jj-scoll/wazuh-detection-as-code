@@ -1,0 +1,19 @@
+match:
+  - description: Detector deleted
+    event:
+      cloud: {provider: aws, region: us-east-1}
+      event: {provider: guardduty.amazonaws.com, action: DeleteDetector}
+      user: {name: compromised-role}
+  - description: Member account leaves the administrator
+    event:
+      cloud: {provider: aws}
+      event: {provider: guardduty.amazonaws.com, action: DisassociateFromAdministratorAccount}
+no_match:
+  - description: Detector listed, not changed
+    event:
+      cloud: {provider: aws}
+      event: {provider: guardduty.amazonaws.com, action: ListDetectors}
+  - description: Different cloud provider with the same action name
+    event:
+      cloud: {provider: gcp}
+      event: {provider: guardduty.amazonaws.com, action: DeleteDetector}

